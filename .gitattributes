@@ -1,0 +1,8 @@
+# Normalise to LF in the repository so CI (Ubuntu) and local Windows checkouts
+# agree, and shell scripts in workflows stay executable.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary
+*.icon binary

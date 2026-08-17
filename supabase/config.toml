@@ -1,0 +1,53 @@
+project_id = "stock-watch"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:8081"
+additional_redirect_urls = ["stockwatch://", "http://localhost:8081"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+# Local development only: skip the confirmation round-trip.
+enable_confirmations = false
+
+# Every function authenticates the caller itself via `requireUser`, except
+# `scan-alerts`, which runs from GitHub Actions with the service-role key.
+[functions.market-data]
+verify_jwt = true
+
+[functions.summarize-news]
+verify_jwt = true
+
+[functions.ai-chat]
+verify_jwt = true
+
+[functions.recommend]
+verify_jwt = true
+
+[functions.paper-trade]
+verify_jwt = true
+
+[functions.register-push-token]
+verify_jwt = true
+
+[functions.scan-alerts]
+verify_jwt = false

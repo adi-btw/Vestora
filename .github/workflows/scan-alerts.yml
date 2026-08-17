@@ -1,0 +1,54 @@
+name: Scan alerts
+
+# GitHub Actions is the scheduler because Supabase's own cron extension is not
+# available on the free plan. The 15-minute cadence during extended US trading
+# hours also counts as project activity, which stops a free Supabase project from
+# being paused for inactivity.
+on:
+  schedule:
+    # Every 15 minutes, 08:00-01:00 UTC (covers 4am-8pm US Eastern).
+    - cron: '*/15 8-23,0-1 * * 1-5'
+    # One weekend ping purely to keep the project awake.
+    - cron: '0 12 * * 6'
+  workflow_dispatch:
+
+concurrency:
+  group: scan-alerts
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    name: Evaluate alerts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call scan-alerts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "SUPABASE_URL and CRON_SECRET repository secrets are required." >&2
+            exit 1
+          fi
+
+          response=$(mktemp)
+          status=$(curl --silent --show-error --fail-with-body \
+            --max-time 60 \
+            --retry 2 --retry-delay 5 --retry-all-errors \
+            --output "$response" \
+            --write-out '%{http_code}' \
+            --header "x-cron-secret: $CRON_SECRET" \
+            --header 'Content-Type: application/json' \
+            --request POST \
+            "$SUPABASE_URL/functions/v1/scan-alerts") || true
+
+          echo "HTTP $status"
+          cat "$response"
+          echo
+
+          # Anything other than a 2xx should fail the run so the schedule is not
+          # silently broken for weeks.
+          case "$status" in
+            2*) exit 0 ;;
+            *) exit 1 ;;
+          esac
