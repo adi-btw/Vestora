@@ -45,11 +45,13 @@ jobs:
         with:
           deno-version: v2.x
 
+      # The config lives with the functions, so pass it explicitly rather than
+      # relying on discovery from the repository root.
       - name: Type check Deno functions
         shell: bash
         run: |
           shopt -s globstar
-          deno check supabase/functions/**/*.ts
+          deno check --config supabase/functions/deno.json supabase/functions/**/*.ts
 
       - name: Test Deno functions
-        run: deno test --permit-no-files supabase/functions/_shared/
+        run: deno test --config supabase/functions/deno.json supabase/functions/_shared/
