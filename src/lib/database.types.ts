@@ -256,20 +256,40 @@ export interface Database {
     };
     Views: { [_ in never]: never };
     Functions: {
+      consume_rate_limit: {
+        Args: {
+          p_user_id: string;
+          p_bucket: string;
+          p_limit: number;
+          p_window_seconds: number;
+        };
+        Returns: Json;
+      };
+      ensure_portfolio: {
+        Args: Record<PropertyKey, never>;
+        Returns: string;
+      };
+      /** Applies cash, position and order changes in one transaction. */
       place_paper_order: {
         Args: {
           p_symbol: string;
           p_side: OrderSide;
           p_order_type: OrderType;
           p_quantity: number;
-          p_reference_price: number;
-          p_limit_price?: number | null;
+          p_limit_price: number | null;
+          p_market_price: number | null;
         };
-        Returns: Json;
+        Returns: OrderRow;
       };
-      snapshot_portfolio_equity: {
-        Args: { p_portfolio_id: string; p_positions_value: number };
-        Returns: Json;
+      /** Service-role only: fills one pending limit order. */
+      fill_pending_order: {
+        Args: { p_order_id: string; p_market_price: number };
+        Returns: boolean;
+      };
+      /** Service-role only: writes today's equity for every portfolio. */
+      snapshot_portfolios: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
       };
     };
     Enums: { [_ in never]: never };

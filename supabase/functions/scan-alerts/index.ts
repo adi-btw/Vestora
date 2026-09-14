@@ -13,6 +13,7 @@ import { sendPushNotifications, type PushMessage } from '../_shared/expo-push.ts
 import { HttpError, jsonResponse, serveJson } from '../_shared/http.ts';
 import { getNews, getQuotes } from '../_shared/market-service.ts';
 import type { Quote } from '../_shared/market-types.ts';
+import { sweepPendingOrders } from '../_shared/order-sweep.ts';
 
 const MAX_SYMBOLS_PER_SCAN = 40;
 
@@ -175,8 +176,17 @@ Deno.serve(
     const alerts = (data ?? []) as AlertRow[];
     const ready = alerts.filter((alert) => !isInCooldown(alert, now));
 
+    // Paper-trading upkeep shares this pass so the project needs only one cron.
+    const sweep = await sweepPendingOrders(admin);
+
     if (ready.length === 0) {
-      return jsonResponse({ scanned: alerts.length, triggered: 0, sent: 0, awake: true });
+      return jsonResponse({
+        scanned: alerts.length,
+        triggered: 0,
+        sent: 0,
+        sweep,
+        awake: true,
+      });
     }
 
     const priceAlerts = ready.filter((alert) => alert.kind !== 'news_keyword');
@@ -202,7 +212,7 @@ Deno.serve(
     }
 
     if (triggers.length === 0) {
-      return jsonResponse({ scanned: alerts.length, triggered: 0, sent: 0, awake: true });
+      return jsonResponse({ scanned: alerts.length, triggered: 0, sent: 0, sweep, awake: true });
     }
 
     const { error: eventError } = await admin.from('alert_events').insert(
@@ -263,12 +273,14 @@ Deno.serve(
       pushSent: push.sent,
       pushFailed: push.failed,
       tokensPruned: push.removedTokens.length,
+      sweep,
     });
 
     return jsonResponse({
       scanned: alerts.length,
       triggered: triggers.length,
       sent: push.sent,
+      sweep,
       awake: true,
     });
   }),

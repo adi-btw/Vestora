@@ -6,7 +6,7 @@ const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
 const PROVIDER = 'gemini';
 
 /** Flash models are the ones on the free tier; Pro moved behind billing. */
-const DEFAULT_MODEL = 'gemini-2.5-flash';
+const DEFAULT_MODEL = 'gemini-3.6-flash';
 
 export type GeminiPart =
   | { text: string }

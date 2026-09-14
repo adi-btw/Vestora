@@ -40,6 +40,9 @@ yarn-error.*
 
 example
 
+# packed function payloads used only for deploys
+.tmp/
+
 # generated native folders
 /ios
 /android

@@ -240,6 +240,110 @@ export const TOOLS: Record<string, ToolDefinition> = {
       return { added: symbol };
     },
   },
+
+  get_portfolio: {
+    mutates: false,
+    declaration: {
+      name: 'get_portfolio',
+      description:
+        'The simulated paper-trading portfolio: cash, holdings with cost basis, and realised profit. Call this before answering anything about what the user owns or can afford.',
+      parameters: { type: 'object', properties: {} },
+    },
+    handler: async (_args, { db, admin }) => {
+      const [{ data: portfolio }, { data: positions, error }] = await Promise.all([
+        db.from('portfolios').select('cash, starting_cash').maybeSingle(),
+        db.from('positions').select('symbol, quantity, avg_cost, realized_pnl').gt('quantity', 0),
+      ]);
+
+      if (error) throw new HttpError(500, 'portfolio_read_failed', error.message);
+
+      const rows = positions ?? [];
+      const { quotes } =
+        rows.length > 0
+          ? await getQuotes(
+              admin,
+              rows.map((row) => row.symbol),
+            )
+          : { quotes: [] };
+      const priceBySymbol = new Map(quotes.map((quote) => [quote.symbol, quote.price]));
+
+      return {
+        cash: Number(portfolio?.cash ?? 0),
+        startingCash: Number(portfolio?.starting_cash ?? 0),
+        positions: rows.map((row) => ({
+          symbol: row.symbol,
+          quantity: Number(row.quantity),
+          avgCost: Number(row.avg_cost),
+          realizedPnl: Number(row.realized_pnl),
+          price: priceBySymbol.get(row.symbol) ?? null,
+        })),
+      };
+    },
+  },
+
+  place_paper_order: {
+    mutates: true,
+    declaration: {
+      name: 'place_paper_order',
+      description:
+        'Place a simulated buy or sell in the paper-trading portfolio. No real money is involved. Only call this when the user asks for a specific trade; check get_portfolio first if you need the balance.',
+      parameters: {
+        type: 'object',
+        properties: {
+          symbol: { type: 'string' },
+          side: { type: 'string', enum: ['buy', 'sell'] },
+          quantity: { type: 'number' },
+          order_type: { type: 'string', enum: ['market', 'limit'] },
+          limit_price: { type: 'number' },
+        },
+        required: ['symbol', 'side', 'quantity'],
+      },
+    },
+    handler: async (args, { db, admin }) => {
+      const symbol = requireString(args, 'symbol');
+      const side = String(args.side ?? '').toLowerCase();
+      const orderType = String(args.order_type ?? 'market').toLowerCase();
+      const quantity = Number(args.quantity);
+      const limitPrice = args.limit_price === undefined ? null : Number(args.limit_price);
+
+      if (side !== 'buy' && side !== 'sell') {
+        throw new HttpError(400, 'invalid_tool_args', 'Side must be "buy" or "sell".');
+      }
+      if (orderType !== 'market' && orderType !== 'limit') {
+        throw new HttpError(400, 'invalid_tool_args', 'Order type must be "market" or "limit".');
+      }
+      if (!Number.isFinite(quantity) || quantity <= 0) {
+        throw new HttpError(400, 'invalid_tool_args', 'Quantity must be a positive number.');
+      }
+      if (orderType === 'limit' && (limitPrice === null || !Number.isFinite(limitPrice))) {
+        throw new HttpError(400, 'invalid_tool_args', 'A limit order needs a limit price.');
+      }
+
+      // The price comes from the cache, never from the model.
+      const { quotes } = await getQuotes(admin, [symbol]);
+      const price = quotes[0]?.price ?? null;
+
+      const { data, error } = await db.rpc('place_paper_order', {
+        p_symbol: symbol,
+        p_side: side,
+        p_order_type: orderType,
+        p_quantity: quantity,
+        p_limit_price: limitPrice,
+        p_market_price: price,
+      });
+
+      if (error) throw new HttpError(500, 'order_failed', error.message);
+
+      return {
+        status: data?.status,
+        symbol,
+        side,
+        quantity,
+        filledPrice: data?.filled_price ?? null,
+        rejectReason: data?.reject_reason ?? null,
+      };
+    },
+  },
 };
 
 export const TOOL_DECLARATIONS: FunctionDeclaration[] = Object.values(TOOLS).map(
@@ -264,6 +368,14 @@ export async function runTool(
 export function describeWriteAction(name: string, args: Record<string, unknown>): string {
   if (name === 'add_to_watchlist') {
     return `Add ${String(args.symbol ?? '').toUpperCase()} to your watchlist?`;
+  }
+  if (name === 'place_paper_order') {
+    const side = String(args.side ?? '').toLowerCase() === 'sell' ? 'Sell' : 'Buy';
+    const limit =
+      args.limit_price === undefined
+        ? 'at the market price'
+        : `with a limit of $${args.limit_price}`;
+    return `${side} ${args.quantity} ${String(args.symbol ?? '').toUpperCase()} ${limit} in your simulated portfolio?`;
   }
   return `Run ${name}?`;
 }

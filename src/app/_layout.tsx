@@ -34,6 +34,7 @@ function RootNavigator() {
         <Stack.Screen name="symbol/[symbol]" options={{ headerShown: false }} />
         <Stack.Screen name="search" options={{ presentation: 'modal', title: 'Search symbols' }} />
         <Stack.Screen name="alert/[symbol]" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="trade/[symbol]" options={{ presentation: 'modal' }} />
       </Stack.Protected>
 
       <Stack.Protected guard={!isSignedIn}>
