@@ -258,13 +258,15 @@ Deno.serve(
         break;
       }
 
-      // Echo the model's calls back before the results, which is the shape Gemini
-      // expects for multi-turn function calling.
+      // Echo the model turn as received so Gemini 3 thought signatures survive.
       contents.push({
         role: 'model',
-        parts: result.functionCalls.map((call) => ({
-          functionCall: { name: call.name, args: call.args },
-        })),
+        parts:
+          result.modelParts.length > 0
+            ? result.modelParts
+            : result.functionCalls.map((call) => ({
+                functionCall: { name: call.name, args: call.args },
+              })),
       });
 
       const responses: gemini.GeminiPart[] = [];

@@ -42,7 +42,7 @@ export function SymbolNews({ symbol }: { symbol: string }) {
 
           <View style={styles.list}>
             {articles.map((article) => (
-              <NewsRow key={article.id} article={article} />
+              <NewsRow key={`${article.symbol}:${article.id}`} article={article} />
             ))}
           </View>
         </View>

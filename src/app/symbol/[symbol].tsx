@@ -49,7 +49,7 @@ export default function SymbolDetailScreen() {
   const profile = company.data?.profile ?? null;
   const financials = company.data?.financials ?? null;
   const trend = company.data?.recommendationTrend ?? null;
-  const peers = company.data?.peers ?? [];
+  const peers = [...new Set((company.data?.peers ?? []).filter(Boolean))];
 
   const displayPrice = scrubbed?.c ?? quote?.price ?? null;
 

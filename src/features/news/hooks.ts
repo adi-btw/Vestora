@@ -1,7 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 
+import type { NewsArticle } from '@/features/market/schemas';
 import * as api from '@/features/news/api';
 import { queryKeys } from '@/lib/query-keys';
+
+/** Finnhub reuses one id when the same story is tagged to several tickers. */
+function uniqueArticles(articles: NewsArticle[]): NewsArticle[] {
+  const seen = new Set<string>();
+  return articles.filter((article) => {
+    if (seen.has(article.id)) return false;
+    seen.add(article.id);
+    return true;
+  });
+}
 
 /** News plus the AI summary for a single ticker. */
 export function useSymbolNews(symbol: string) {
@@ -15,7 +26,7 @@ export function useSymbolNews(symbol: string) {
 
   return {
     ...query,
-    articles: query.data?.articles ?? [],
+    articles: uniqueArticles(query.data?.articles ?? []),
     summary: query.data?.summaries.find((item) => item.symbol === symbol.toUpperCase()) ?? null,
     aiEnabled: query.data?.aiEnabled ?? false,
     quotaExhausted: query.data?.quotaExhausted ?? false,
@@ -36,5 +47,5 @@ export function useWatchlistNews(symbols: string[]) {
     staleTime: 10 * 60_000,
   });
 
-  return { ...query, articles: query.data?.articles ?? [] };
+  return { ...query, articles: uniqueArticles(query.data?.articles ?? []) };
 }

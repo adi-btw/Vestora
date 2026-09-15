@@ -51,7 +51,9 @@ export function WatchlistNews({ symbols, onBrowseSymbols }: WatchlistNewsProps) 
           description="No recent coverage for the tickers you follow."
         />
       ) : (
-        articles.map((article) => <NewsRow key={article.id} article={article} showSymbol />)
+        articles.map((article) => (
+          <NewsRow key={`${article.symbol}:${article.id}`} article={article} showSymbol />
+        ))
       )}
     </View>
   );

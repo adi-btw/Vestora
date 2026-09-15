@@ -8,10 +8,17 @@ const PROVIDER = 'gemini';
 /** Flash models are the ones on the free tier; Pro moved behind billing. */
 const DEFAULT_MODEL = 'gemini-3.6-flash';
 
-export type GeminiPart =
-  | { text: string }
-  | { functionCall: { name: string; args: Record<string, unknown> } }
-  | { functionResponse: { name: string; response: Record<string, unknown> } };
+/**
+ * Gemini 3 attaches an opaque `thoughtSignature` to function-call parts. Echo
+ * the model turn back as received; reconstructing the parts drops the signature
+ * and the next round fails with HTTP 400.
+ */
+export type GeminiPart = {
+  text?: string;
+  thoughtSignature?: string;
+  functionCall?: { name: string; args?: Record<string, unknown> };
+  functionResponse?: { name: string; response: Record<string, unknown> };
+};
 
 export type GeminiContent = {
   role: 'user' | 'model';
@@ -47,6 +54,8 @@ export type GeminiResult = {
   text: string;
   functionCalls: { name: string; args: Record<string, unknown> }[];
   finishReason: string | null;
+  /** Raw model parts to send back on the next tool-calling round. */
+  modelParts: GeminiPart[];
 };
 
 /**
@@ -118,22 +127,24 @@ export async function generate(options: GenerateOptions): Promise<GeminiResult> 
   const parts = candidate?.content?.parts ?? [];
 
   const text = parts
-    .filter((part): part is { text: string } => 'text' in part)
     .map((part) => part.text)
+    .filter((value): value is string => typeof value === 'string')
     .join('')
     .trim();
 
   const functionCalls = parts
-    .filter(
-      (part): part is { functionCall: { name: string; args: Record<string, unknown> } } =>
-        'functionCall' in part,
-    )
+    .filter((part) => Boolean(part.functionCall?.name))
     .map((part) => ({
-      name: part.functionCall.name,
-      args: part.functionCall.args ?? {},
+      name: part.functionCall!.name,
+      args: (part.functionCall!.args ?? {}) as Record<string, unknown>,
     }));
 
-  return { text, functionCalls, finishReason: candidate?.finishReason ?? null };
+  return {
+    text,
+    functionCalls,
+    finishReason: candidate?.finishReason ?? null,
+    modelParts: parts,
+  };
 }
 
 /**
