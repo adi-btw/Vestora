@@ -1,5 +1,5 @@
 /**
- * Design tokens for Stock Watch.
+ * Design tokens for Vestora.
  *
  * Colors follow iOS grouped-table semantics (systemBackground / grouped
  * background / systemBlue) so screens read like Apple Stocks rather than a

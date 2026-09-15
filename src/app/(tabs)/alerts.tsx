@@ -30,7 +30,7 @@ const PUSH_COPY: Record<PushStatus, { message: string; action: string | null } |
   registering: { message: 'Setting up notifications...', action: null },
   granted: null,
   denied: {
-    message: 'Notifications are blocked. Enable them for Stock Watch in your system settings.',
+    message: 'Notifications are blocked. Enable them for Vestora in your system settings.',
     action: null,
   },
   'needs-dev-build': {

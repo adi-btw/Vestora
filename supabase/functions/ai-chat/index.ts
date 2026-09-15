@@ -17,7 +17,7 @@ import { HttpError, jsonResponse, parseJsonBody, serveJson } from '../_shared/ht
 import * as gemini from '../_shared/providers/gemini.ts';
 import { enforceRateLimit, RATE_LIMITS } from '../_shared/rate-limit.ts';
 
-const SYSTEM_INSTRUCTION = `You are the research assistant inside Stock Watch, a portfolio tracking app.
+const SYSTEM_INSTRUCTION = `You are the research assistant inside Vestora, a portfolio tracking app.
 
 How you work:
 - Never state a price, ratio, or headline from memory. Call a tool and use what it returns.

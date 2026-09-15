@@ -56,7 +56,7 @@ export default function SignInScreen() {
           <View style={[styles.logo, { backgroundColor: theme.accentSoft }]}>
             <Ionicons name="trending-up" size={28} color={theme.accent} />
           </View>
-          <ThemedText type="display">Stock Watch</ThemedText>
+          <ThemedText type="display">Vestora</ThemedText>
           <ThemedText type="body" themeColor="textSecondary">
             Track the tickers you care about, get alerts that matter, and ask an AI advisor that
             reads live market data before it answers.

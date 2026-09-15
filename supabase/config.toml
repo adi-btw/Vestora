@@ -1,4 +1,4 @@
-project_id = "stock-watch"
+project_id = "vestora"
 
 [api]
 enabled = true
@@ -19,7 +19,7 @@ port = 54323
 [auth]
 enabled = true
 site_url = "http://localhost:8081"
-additional_redirect_urls = ["stockwatch://", "http://localhost:8081"]
+additional_redirect_urls = ["vestora://", "http://localhost:8081"]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 enable_signup = true
