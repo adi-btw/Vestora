@@ -139,11 +139,7 @@ export default function SymbolDetailScreen() {
             </ThemedText>
           ) : quote ? (
             <View style={styles.changeRow}>
-              <ChangePill
-                change={quote.change}
-                changePercent={quote.changePercent}
-                showAbsolute
-              />
+              <ChangePill change={quote.change} changePercent={quote.changePercent} showAbsolute />
               <ThemedText type="caption" themeColor="textMuted">
                 as of {formatDateTime(quote.asOf)}
               </ThemedText>

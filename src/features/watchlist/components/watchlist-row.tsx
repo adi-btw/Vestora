@@ -45,7 +45,10 @@ export function WatchlistRow({
       accessibilityLabel={`${symbol}${quote?.price ? `, ${formatCurrency(quote.price)}` : ''}`}
       style={({ pressed }) => [
         styles.row,
-        showSeparator && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border },
+        showSeparator && {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: theme.border,
+        },
         pressed && { backgroundColor: theme.backgroundSelected },
       ]}>
       <View style={styles.identity}>

@@ -28,9 +28,7 @@ export function MessageBubble({ message }: { message: ChatMessage }) {
       <View
         style={[
           styles.bubble,
-          isUser
-            ? { backgroundColor: theme.accent }
-            : { backgroundColor: theme.backgroundElement },
+          isUser ? { backgroundColor: theme.accent } : { backgroundColor: theme.backgroundElement },
         ]}>
         {!isUser && message.tool_calls?.length ? <ToolTrace calls={message.tool_calls} /> : null}
         <ThemedText type="small" color={isUser ? theme.accentText : theme.text}>
