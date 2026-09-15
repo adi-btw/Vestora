@@ -53,8 +53,8 @@ export function AlertRow({ alert, onToggle, onDelete }: AlertRowProps) {
         value={alert.is_active}
         onValueChange={(isActive) => onToggle({ alertId: alert.id, isActive })}
         accessibilityLabel={`${alert.is_active ? 'Disable' : 'Enable'} ${alert.symbol} alert`}
-        trackColor={{ false: theme.backgroundElement, true: theme.accentSoft }}
-        thumbColor={alert.is_active ? theme.accent : theme.textMuted}
+        trackColor={{ false: theme.backgroundSelected, true: theme.accent }}
+        thumbColor={theme.accentText}
       />
 
       <Pressable
@@ -73,7 +73,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
-    paddingVertical: Spacing.three - 4,
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.three,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   main: {

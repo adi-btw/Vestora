@@ -103,8 +103,7 @@ export default function ChatScreen() {
                     style={({ pressed }) => [
                       styles.suggestion,
                       {
-                        backgroundColor: theme.surface,
-                        borderColor: theme.border,
+                        backgroundColor: theme.backgroundElement,
                         opacity: pressed ? 0.75 : 1,
                       },
                     ]}>
@@ -146,7 +145,7 @@ export default function ChatScreen() {
         <Disclaimer />
       </View>
 
-      <View style={{ paddingBottom: insets.bottom }}>
+      <View style={[styles.composerWrap, { paddingBottom: insets.bottom }]}>
         <Composer onSend={chat.send} isSending={chat.isSending} />
       </View>
     </KeyboardAvoidingView>
@@ -165,7 +164,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
   },
   header: {
-    gap: 2,
+    gap: Spacing.one,
     paddingTop: Spacing.two,
     paddingBottom: Spacing.three - 4,
   },
@@ -184,14 +183,18 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.two,
   },
   suggestion: {
-    borderRadius: Radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.three - 4,
+    borderRadius: Radius.lg,
+    padding: Spacing.three - 2,
   },
   thinking: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
     paddingVertical: Spacing.two,
+  },
+  composerWrap: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignSelf: 'center',
   },
 });

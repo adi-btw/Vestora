@@ -1,9 +1,10 @@
 /**
  * Design tokens for Stock Watch.
  *
- * Colors are defined for light and dark mode and consumed through `useTheme()`.
- * Financial semantics (`up`, `down`) are part of the palette so gains and losses
- * are never hardcoded at the call site.
+ * Colors follow iOS grouped-table semantics (systemBackground / grouped
+ * background / systemBlue) so screens read like Apple Stocks rather than a
+ * custom dashboard. Financial semantics (`up`, `down`) stay in the palette so
+ * gains and losses are never hardcoded at the call site.
  */
 
 import '@/global.css';
@@ -39,64 +40,60 @@ export type ThemeColor = keyof ThemeColors;
 
 export const Colors: Record<'light' | 'dark', ThemeColors> = {
   light: {
-    text: '#0B0D12',
-    textSecondary: '#60646C',
-    textMuted: '#8B8F98',
-    background: '#FFFFFF',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    surface: '#F7F8FA',
+    text: '#000000',
+    textSecondary: '#3C3C43',
+    textMuted: '#8E8E93',
+    background: '#F2F2F7',
+    backgroundElement: '#E5E5EA',
+    backgroundSelected: '#D1D1D6',
+    surface: '#FFFFFF',
     surfaceElevated: '#FFFFFF',
-    border: '#E4E6EB',
-    borderStrong: '#CFD3DA',
-    accent: '#2563EB',
-    accentSoft: '#E8F0FE',
+    border: 'rgba(60, 60, 67, 0.12)',
+    borderStrong: 'rgba(60, 60, 67, 0.29)',
+    accent: '#007AFF',
+    accentSoft: '#E5F1FF',
     accentText: '#FFFFFF',
-    up: '#0E8A55',
-    upSoft: '#E4F5EC',
-    down: '#D02F45',
-    downSoft: '#FDEAED',
-    neutral: '#60646C',
-    warning: '#B45309',
-    warningSoft: '#FEF3C7',
-    overlay: 'rgba(11, 13, 18, 0.45)',
-    skeleton: '#E9EBEF',
+    up: '#34C759',
+    upSoft: '#E4F8EA',
+    down: '#FF3B30',
+    downSoft: '#FFE8E6',
+    neutral: '#8E8E93',
+    warning: '#FF9F0A',
+    warningSoft: '#FFF4E0',
+    overlay: 'rgba(0, 0, 0, 0.4)',
+    skeleton: '#E5E5EA',
   },
   dark: {
-    text: '#F5F6F8',
-    textSecondary: '#B0B4BA',
-    textMuted: '#7E848E',
-    background: '#0A0B0D',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    surface: '#14161A',
-    surfaceElevated: '#1B1E23',
-    border: '#26292F',
-    borderStrong: '#383C44',
-    accent: '#5B8DEF',
-    accentSoft: '#16233B',
-    accentText: '#08111F',
-    up: '#3ECF8E',
-    upSoft: '#10251C',
-    down: '#F1657C',
-    downSoft: '#2A1219',
-    neutral: '#B0B4BA',
-    warning: '#F5B54B',
-    warningSoft: '#2A2010',
-    overlay: 'rgba(0, 0, 0, 0.6)',
-    skeleton: '#1F2226',
+    text: '#FFFFFF',
+    textSecondary: '#EBEBF5',
+    textMuted: '#8E8E93',
+    background: '#000000',
+    backgroundElement: '#1C1C1E',
+    backgroundSelected: '#2C2C2E',
+    surface: '#1C1C1E',
+    surfaceElevated: '#1C1C1E',
+    border: 'rgba(84, 84, 88, 0.36)',
+    borderStrong: 'rgba(84, 84, 88, 0.65)',
+    accent: '#0A84FF',
+    accentSoft: '#0A2540',
+    accentText: '#FFFFFF',
+    up: '#30D158',
+    upSoft: '#0F2A18',
+    down: '#FF453A',
+    downSoft: '#3A1210',
+    neutral: '#8E8E93',
+    warning: '#FFD60A',
+    warningSoft: '#2A2408',
+    overlay: 'rgba(0, 0, 0, 0.55)',
+    skeleton: '#2C2C2E',
   },
 };
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
     sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
   },
   default: {
@@ -126,7 +123,8 @@ export const Spacing = {
 export const Radius = {
   sm: 6,
   md: 10,
-  lg: 16,
+  lg: 12,
+  xl: 18,
   pill: 999,
 } as const;
 

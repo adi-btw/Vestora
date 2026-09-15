@@ -4,11 +4,10 @@ import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorView } from '@/components/ui/error-view';
+import { GroupedSection } from '@/components/ui/grouped-section';
 import { Screen } from '@/components/ui/screen';
-import { SectionHeader } from '@/components/ui/section-header';
 import { SkeletonList } from '@/components/ui/skeleton';
 import { Radius, Spacing } from '@/constants/theme';
 import { AlertRow } from '@/features/alerts/components/alert-row';
@@ -73,7 +72,7 @@ export default function AlertsScreen() {
       contentStyle={styles.content}>
       <View style={styles.header}>
         <ThemedText type="title">Alerts</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textMuted">
           Checked every 15 minutes while US markets are open.
         </ThemedText>
       </View>
@@ -95,24 +94,25 @@ export default function AlertsScreen() {
         </View>
       ) : null}
 
-      <Card>
-        <SectionHeader
-          title="Your alerts"
-          subtitle={alerts.data?.length ? `${alerts.data.length} configured` : undefined}
-        />
-
+      <GroupedSection
+        title="Your alerts"
+        subtitle={alerts.data?.length ? `${alerts.data.length} configured` : undefined}>
         {alerts.isError ? (
           <ErrorView error={alerts.error} onRetry={alerts.refetch} compact />
         ) : alerts.isLoading ? (
-          <SkeletonList count={3} />
+          <View style={styles.padded}>
+            <SkeletonList count={3} />
+          </View>
         ) : (alerts.data ?? []).length === 0 ? (
-          <EmptyState
-            icon="notifications-off-outline"
-            title="No alerts yet"
-            description="Open a stock and set a price target or news keyword to watch for."
-            actionLabel="Find a symbol"
-            onAction={() => router.push('/search')}
-          />
+          <View style={styles.padded}>
+            <EmptyState
+              icon="notifications-off-outline"
+              title="No alerts yet"
+              description="Open a stock and set a price target or news keyword to watch for."
+              actionLabel="Find a symbol"
+              onAction={() => router.push('/search')}
+            />
+          </View>
         ) : (
           <View>
             {(alerts.data ?? []).map((alert) => (
@@ -125,23 +125,24 @@ export default function AlertsScreen() {
             ))}
           </View>
         )}
-      </Card>
+      </GroupedSection>
 
-      <Card>
-        <SectionHeader
-          title="Recent triggers"
-          actionLabel={(events.data ?? []).length > 0 ? 'Clear' : undefined}
-          onAction={(events.data ?? []).length > 0 ? () => clearEvents.mutate() : undefined}
-        />
-
+      <GroupedSection
+        title="Recent triggers"
+        actionLabel={(events.data ?? []).length > 0 ? 'Clear' : undefined}
+        onAction={(events.data ?? []).length > 0 ? () => clearEvents.mutate() : undefined}>
         {events.isError ? (
           <ErrorView error={events.error} onRetry={events.refetch} compact />
         ) : events.isLoading ? (
-          <SkeletonList count={2} />
+          <View style={styles.padded}>
+            <SkeletonList count={2} />
+          </View>
         ) : (events.data ?? []).length === 0 ? (
-          <ThemedText type="small" themeColor="textMuted">
-            Nothing has fired yet.
-          </ThemedText>
+          <View style={styles.padded}>
+            <ThemedText type="small" themeColor="textMuted">
+              Nothing has fired yet.
+            </ThemedText>
+          </View>
         ) : (
           <View>
             {(events.data ?? []).map((event) => (
@@ -155,7 +156,7 @@ export default function AlertsScreen() {
             ))}
           </View>
         )}
-      </Card>
+      </GroupedSection>
     </Screen>
   );
 }
@@ -165,8 +166,17 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   header: {
-    gap: 2,
+    gap: Spacing.one,
     paddingTop: Spacing.two,
+  },
+  padded: {
+    padding: Spacing.three,
+  },
+  event: {
+    gap: 2,
+    paddingVertical: Spacing.three - 2,
+    paddingHorizontal: Spacing.three,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   banner: {
     flexDirection: 'row',
@@ -177,10 +187,5 @@ const styles = StyleSheet.create({
   },
   bannerText: {
     flex: 1,
-  },
-  event: {
-    gap: 2,
-    paddingVertical: Spacing.two + 2,
-    borderBottomWidth: StyleSheet.hairlineWidth,
   },
 });

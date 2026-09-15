@@ -35,7 +35,7 @@ export default function DiscoverScreen() {
     <Screen scroll onRefresh={refresh} refreshing={isRefreshing} contentStyle={styles.content}>
       <View style={styles.header}>
         <ThemedText type="title">Discover</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textMuted">
           News and ideas built from the tickers you follow.
         </ThemedText>
       </View>
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     gap: Spacing.four,
   },
   header: {
-    gap: 2,
+    gap: Spacing.one,
     paddingTop: Spacing.two,
   },
 });

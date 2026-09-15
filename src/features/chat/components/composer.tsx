@@ -43,7 +43,6 @@ export function Composer({ onSend, isSending }: ComposerProps) {
           styles.input,
           {
             backgroundColor: theme.backgroundElement,
-            borderColor: theme.border,
             color: theme.text,
           },
         ]}
@@ -78,19 +77,20 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    minWidth: 0,
     minHeight: 44,
     maxHeight: 120,
-    borderRadius: Radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: Spacing.three - 4,
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    fontSize: 15,
-    lineHeight: 20,
+    fontSize: 17,
+    lineHeight: 22,
   },
   send: {
     width: 44,
     height: 44,
     borderRadius: 22,
+    flexShrink: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },

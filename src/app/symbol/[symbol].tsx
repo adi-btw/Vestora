@@ -5,14 +5,13 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AnalystTrend } from '@/components/market/analyst-trend';
-import { PriceChange } from '@/components/market/price-change';
+import { ChangePill } from '@/components/market/change-pill';
 import { PriceChart } from '@/components/market/price-chart';
 import { StatGrid, type Stat } from '@/components/market/stat-grid';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { ErrorView } from '@/components/ui/error-view';
-import { SectionHeader } from '@/components/ui/section-header';
+import { GroupedSection } from '@/components/ui/grouped-section';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
@@ -100,8 +99,9 @@ export default function SymbolDetailScreen() {
           onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back"
-          hitSlop={10}>
-          <Ionicons name="chevron-back" size={26} color={theme.text} />
+          hitSlop={10}
+          style={styles.backButton}>
+          <Ionicons name="chevron-back" size={28} color={theme.accent} />
         </Pressable>
 
         <Pressable
@@ -109,22 +109,9 @@ export default function SymbolDetailScreen() {
           disabled={watchlist.isPending}
           accessibilityRole="button"
           accessibilityLabel={watchlist.isWatched ? 'Remove from watchlist' : 'Add to watchlist'}
-          style={({ pressed }) => [
-            styles.watchButton,
-            {
-              backgroundColor: watchlist.isWatched ? theme.backgroundElement : theme.accentSoft,
-              opacity: pressed || watchlist.isPending ? 0.7 : 1,
-            },
-          ]}>
-          <Ionicons
-            name={watchlist.isWatched ? 'checkmark' : 'add'}
-            size={16}
-            color={watchlist.isWatched ? theme.textSecondary : theme.accent}
-          />
-          <ThemedText
-            type="captionBold"
-            themeColor={watchlist.isWatched ? 'textSecondary' : 'accent'}>
-            {watchlist.isWatched ? 'On watchlist' : 'Add to watchlist'}
+          style={({ pressed }) => [{ opacity: pressed || watchlist.isPending ? 0.55 : 1 }]}>
+          <ThemedText type="body" themeColor="accent">
+            {watchlist.isWatched ? 'Watching' : 'Add'}
           </ThemedText>
         </Pressable>
       </View>
@@ -152,7 +139,11 @@ export default function SymbolDetailScreen() {
             </ThemedText>
           ) : quote ? (
             <View style={styles.changeRow}>
-              <PriceChange change={quote.change} changePercent={quote.changePercent} />
+              <ChangePill
+                change={quote.change}
+                changePercent={quote.changePercent}
+                showAbsolute
+              />
               <ThemedText type="caption" themeColor="textMuted">
                 as of {formatDateTime(quote.asOf)}
               </ThemedText>
@@ -204,29 +195,26 @@ export default function SymbolDetailScreen() {
         />
       </View>
 
-      <Card>
-        <SectionHeader title="Key statistics" />
+      <GroupedSection title="Statistics" padded>
         <StatGrid stats={stats} />
         {profile?.industry ? (
           <ThemedText type="caption" themeColor="textMuted" style={styles.industry}>
             {profile.industry}
-            {profile.exchange ? ` - ${profile.exchange}` : ''}
+            {profile.exchange ? ` · ${profile.exchange}` : ''}
           </ThemedText>
         ) : null}
-      </Card>
+      </GroupedSection>
 
       {trend ? (
-        <Card>
-          <SectionHeader title="Analyst consensus" />
+        <GroupedSection title="Analyst consensus" padded>
           <AnalystTrend trend={trend} />
-        </Card>
+        </GroupedSection>
       ) : null}
 
       <SymbolNews symbol={symbol} />
 
       {peers.length > 0 ? (
-        <Card>
-          <SectionHeader title="Similar companies" subtitle="Used to seed AI recommendations" />
+        <GroupedSection title="Similar companies" subtitle="Used to seed AI recommendations" padded>
           <View style={styles.peers}>
             {peers.slice(0, 10).map((peer) => (
               <Pressable
@@ -244,7 +232,7 @@ export default function SymbolDetailScreen() {
               </Pressable>
             ))}
           </View>
-        </Card>
+        </GroupedSection>
       ) : null}
 
       <ThemedText type="caption" themeColor="textMuted">
@@ -270,14 +258,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    minHeight: 44,
   },
-  watchButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.one + 2,
-    paddingHorizontal: Spacing.three - 4,
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.pill,
+  backButton: {
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   identity: {
     gap: 2,

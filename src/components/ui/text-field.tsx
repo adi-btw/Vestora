@@ -29,8 +29,9 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
         style={[
           styles.input,
           {
-            backgroundColor: theme.surface,
-            borderColor: error ? theme.down : theme.border,
+            backgroundColor: theme.backgroundElement,
+            borderColor: error ? theme.down : 'transparent',
+            borderWidth: error ? StyleSheet.hairlineWidth : 0,
             color: theme.text,
           },
           style,
@@ -57,11 +58,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   input: {
-    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: Radius.md,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two + 2,
-    fontSize: 16,
-    minHeight: 48,
+    fontSize: 17,
+    minHeight: 44,
   },
 });

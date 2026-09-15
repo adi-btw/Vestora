@@ -11,18 +11,26 @@ export type Stat = {
   color?: string;
 };
 
-/** Two-column key/value grid used for fundamentals and position details. */
+/** Label-left, value-right rows used for fundamentals and position details. */
 export function StatGrid({ stats }: { stats: Stat[] }) {
   const theme = useTheme();
 
   return (
-    <View style={styles.grid}>
-      {stats.map((stat) => (
-        <View key={stat.label} style={[styles.cell, { borderBottomColor: theme.border }]}>
-          <ThemedText type="caption" themeColor="textSecondary">
+    <View>
+      {stats.map((stat, index) => (
+        <View
+          key={stat.label}
+          style={[
+            styles.row,
+            index < stats.length - 1 && {
+              borderBottomWidth: StyleSheet.hairlineWidth,
+              borderBottomColor: theme.border,
+            },
+          ]}>
+          <ThemedText type="small" themeColor="textSecondary" style={styles.label}>
             {stat.label}
           </ThemedText>
-          <ThemedText type="smallBold" color={stat.color}>
+          <ThemedText type="smallBold" color={stat.color} numberOfLines={1}>
             {stat.value}
           </ThemedText>
         </View>
@@ -32,14 +40,15 @@ export function StatGrid({ stats }: { stats: Stat[] }) {
 }
 
 const styles = StyleSheet.create({
-  grid: {
+  row: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  cell: {
-    width: '50%',
-    gap: 2,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.three,
+    minHeight: 44,
     paddingVertical: Spacing.two + 2,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  label: {
+    flexShrink: 1,
   },
 });

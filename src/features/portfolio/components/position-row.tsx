@@ -1,22 +1,16 @@
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { useDirectionColor } from '@/components/market/price-change';
+import { ChangePill } from '@/components/market/change-pill';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import type { Position } from '@/features/portfolio/schemas';
 import { useTheme } from '@/hooks/use-theme';
-import {
-  formatCurrency,
-  formatQuantity,
-  formatSignedCurrency,
-  formatSignedPercent,
-} from '@/lib/format';
+import { formatCurrency, formatQuantity } from '@/lib/format';
 
 export function PositionRow({ position }: { position: Position }) {
   const theme = useTheme();
   const router = useRouter();
-  const pnlColor = useDirectionColor(position.unrealizedPnl);
 
   return (
     <Pressable
@@ -37,12 +31,7 @@ export function PositionRow({ position }: { position: Position }) {
 
       <View style={styles.right}>
         <ThemedText type="smallBold">{formatCurrency(position.marketValue)}</ThemedText>
-        <ThemedText type="caption" color={pnlColor}>
-          {formatSignedCurrency(position.unrealizedPnl)}
-          {position.unrealizedPercent !== null
-            ? ` (${formatSignedPercent(position.unrealizedPercent)})`
-            : ''}
-        </ThemedText>
+        <ChangePill change={position.unrealizedPnl} changePercent={position.unrealizedPercent} />
       </View>
     </Pressable>
   );
@@ -54,7 +43,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: Spacing.three,
-    paddingVertical: Spacing.three - 4,
+    paddingVertical: Spacing.three - 2,
+    paddingHorizontal: Spacing.three,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   left: {

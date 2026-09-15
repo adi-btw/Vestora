@@ -4,7 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { Disclaimer } from '@/components/ui/disclaimer';
 import { ErrorView } from '@/components/ui/error-view';
-import { SectionHeader } from '@/components/ui/section-header';
+import { GroupedSection } from '@/components/ui/grouped-section';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Spacing } from '@/constants/theme';
 import { RecommendationCard } from '@/features/recommendations/components/recommendation-card';
@@ -24,40 +24,39 @@ export function RecommendationList() {
 
   return (
     <View style={styles.container}>
-      <SectionHeader
+      <GroupedSection
         title="Ideas for you"
         subtitle={
           generatedAt
             ? `Scored ${formatRelativeTime(generatedAt)} from peers of your watchlist`
             : 'Scored from peers of the stocks you follow'
-        }
-      />
-
-      {isError ? (
-        <ErrorView error={error} onRetry={refetch} compact />
-      ) : isLoading ? (
-        <View style={styles.loading}>
-          <Skeleton height={120} />
-          <Skeleton height={120} />
-        </View>
-      ) : recommendations.length === 0 ? (
-        <View style={styles.empty}>
-          <ThemedText type="small" themeColor="textSecondary">
-            Generate a set of ideas scored on growth, quality, valuation, momentum and analyst
-            consensus.
-          </ThemedText>
-        </View>
-      ) : (
-        <View style={styles.list}>
-          {recommendations.map((recommendation) => (
-            <RecommendationCard
-              key={recommendation.symbol}
-              recommendation={recommendation}
-              onDismiss={dismiss.mutate}
-            />
-          ))}
-        </View>
-      )}
+        }>
+        {isError ? (
+          <ErrorView error={error} onRetry={refetch} compact />
+        ) : isLoading ? (
+          <View style={styles.loading}>
+            <Skeleton height={120} />
+            <Skeleton height={120} />
+          </View>
+        ) : recommendations.length === 0 ? (
+          <View style={styles.empty}>
+            <ThemedText type="small" themeColor="textSecondary">
+              Generate a set of ideas scored on growth, quality, valuation, momentum and analyst
+              consensus.
+            </ThemedText>
+          </View>
+        ) : (
+          <View>
+            {recommendations.map((recommendation) => (
+              <RecommendationCard
+                key={recommendation.symbol}
+                recommendation={recommendation}
+                onDismiss={dismiss.mutate}
+              />
+            ))}
+          </View>
+        )}
+      </GroupedSection>
 
       {refresh.isError ? <ErrorView error={refresh.error} compact /> : null}
 
@@ -75,15 +74,13 @@ export function RecommendationList() {
 
 const styles = StyleSheet.create({
   container: {
-    gap: Spacing.two,
+    gap: Spacing.three,
   },
   loading: {
     gap: Spacing.two,
-  },
-  list: {
-    gap: Spacing.two,
+    padding: Spacing.three,
   },
   empty: {
-    paddingBottom: Spacing.one,
+    padding: Spacing.three,
   },
 });

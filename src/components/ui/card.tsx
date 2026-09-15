@@ -10,6 +10,7 @@ type CardProps = {
   padded?: boolean;
 };
 
+/** Elevated grouped surface. Prefer `GroupedSection` when the block has a title. */
 export function Card({ children, style, padded = true }: CardProps) {
   const theme = useTheme();
 
@@ -17,7 +18,7 @@ export function Card({ children, style, padded = true }: CardProps) {
     <View
       style={[
         styles.card,
-        { backgroundColor: theme.surface, borderColor: theme.border },
+        { backgroundColor: theme.surfaceElevated },
         padded && styles.padded,
         style,
       ]}>
@@ -29,7 +30,6 @@ export function Card({ children, style, padded = true }: CardProps) {
 const styles = StyleSheet.create({
   card: {
     borderRadius: Radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden',
   },
   padded: {

@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorView } from '@/components/ui/error-view';
-import { SectionHeader } from '@/components/ui/section-header';
+import { GroupedSection } from '@/components/ui/grouped-section';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Spacing } from '@/constants/theme';
 import { NewsRow } from '@/features/news/components/news-row';
@@ -33,9 +33,7 @@ export function WatchlistNews({ symbols, onBrowseSymbols }: WatchlistNewsProps) 
   }
 
   return (
-    <View>
-      <SectionHeader title="Your news" subtitle="Headlines across your watchlist" />
-
+    <GroupedSection title="Your news" subtitle="Headlines across your watchlist">
       {isError ? (
         <ErrorView error={error} onRetry={refetch} compact />
       ) : isLoading ? (
@@ -45,22 +43,28 @@ export function WatchlistNews({ symbols, onBrowseSymbols }: WatchlistNewsProps) 
           ))}
         </View>
       ) : articles.length === 0 ? (
-        <EmptyState
-          icon="newspaper-outline"
-          title="Nothing new"
-          description="No recent coverage for the tickers you follow."
-        />
+        <View style={styles.empty}>
+          <EmptyState
+            icon="newspaper-outline"
+            title="Nothing new"
+            description="No recent coverage for the tickers you follow."
+          />
+        </View>
       ) : (
         articles.map((article) => (
           <NewsRow key={`${article.symbol}:${article.id}`} article={article} showSymbol />
         ))
       )}
-    </View>
+    </GroupedSection>
   );
 }
 
 const styles = StyleSheet.create({
   loading: {
     gap: Spacing.two,
+    padding: Spacing.three,
+  },
+  empty: {
+    padding: Spacing.three,
   },
 });

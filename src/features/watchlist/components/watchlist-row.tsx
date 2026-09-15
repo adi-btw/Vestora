@@ -1,7 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { PriceChange, useDirectionColor } from '@/components/market/price-change';
+import { ChangePill } from '@/components/market/change-pill';
+import { useDirectionColor } from '@/components/market/price-change';
 import { Sparkline } from '@/components/market/sparkline';
 import { ThemedText } from '@/components/themed-text';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,6 +18,7 @@ type WatchlistRowProps = {
   sparkline?: number[];
   isLoadingQuote: boolean;
   isStale?: boolean;
+  showSeparator?: boolean;
   onPress: () => void;
   onLongPress?: () => void;
 };
@@ -28,6 +30,7 @@ export function WatchlistRow({
   sparkline,
   isLoadingQuote,
   isStale = false,
+  showSeparator = true,
   onPress,
   onLongPress,
 }: WatchlistRowProps) {
@@ -42,13 +45,13 @@ export function WatchlistRow({
       accessibilityLabel={`${symbol}${quote?.price ? `, ${formatCurrency(quote.price)}` : ''}`}
       style={({ pressed }) => [
         styles.row,
-        { borderBottomColor: theme.border },
-        pressed && { backgroundColor: theme.backgroundElement },
+        showSeparator && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border },
+        pressed && { backgroundColor: theme.backgroundSelected },
       ]}>
       <View style={styles.identity}>
         <ThemedText type="bodyBold">{symbol}</ThemedText>
         {name ? (
-          <ThemedText type="caption" themeColor="textSecondary" numberOfLines={1}>
+          <ThemedText type="caption" themeColor="textMuted" numberOfLines={1}>
             {name}
           </ThemedText>
         ) : null}
@@ -64,7 +67,7 @@ export function WatchlistRow({
         {isLoadingQuote && !quote ? (
           <>
             <Skeleton width={72} height={18} />
-            <Skeleton width={52} height={12} />
+            <Skeleton width={52} height={20} />
           </>
         ) : quote ? (
           <>
@@ -74,12 +77,7 @@ export function WatchlistRow({
               ) : null}
               <ThemedText type="bodyBold">{formatCurrency(quote.price)}</ThemedText>
             </View>
-            <PriceChange
-              change={quote.change}
-              changePercent={quote.changePercent}
-              showAbsolute={false}
-              type="caption"
-            />
+            <ChangePill change={quote.change} changePercent={quote.changePercent} />
           </>
         ) : (
           <ThemedText type="caption" themeColor="textMuted">
@@ -96,20 +94,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
-    paddingVertical: Spacing.three - 2,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    minHeight: 64,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two + 2,
   },
   identity: {
     flex: 1,
-    gap: 2,
+    gap: 1,
   },
   chart: {
-    width: 72,
+    width: 64,
     alignItems: 'center',
   },
   values: {
     alignItems: 'flex-end',
-    gap: 2,
+    gap: 4,
     minWidth: 88,
   },
   priceLine: {

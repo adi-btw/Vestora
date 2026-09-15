@@ -14,16 +14,16 @@ export function SectionHeader({ title, subtitle, actionLabel, onAction }: Sectio
   return (
     <View style={styles.container}>
       <View style={styles.titles}>
-        <ThemedText type="heading">{title}</ThemedText>
+        <ThemedText type="subtitle">{title}</ThemedText>
         {subtitle ? (
-          <ThemedText type="small" themeColor="textSecondary">
+          <ThemedText type="caption" themeColor="textMuted">
             {subtitle}
           </ThemedText>
         ) : null}
       </View>
       {actionLabel && onAction ? (
         <Pressable onPress={onAction} accessibilityRole="button" hitSlop={8}>
-          <ThemedText type="smallBold" themeColor="accent">
+          <ThemedText type="small" themeColor="accent">
             {actionLabel}
           </ThemedText>
         </Pressable>
@@ -38,10 +38,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     gap: Spacing.two,
-    paddingVertical: Spacing.two,
+    paddingHorizontal: Spacing.one,
+    paddingBottom: Spacing.one,
   },
   titles: {
     flex: 1,
-    gap: 2,
+    gap: 1,
   },
 });

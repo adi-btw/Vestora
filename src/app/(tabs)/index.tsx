@@ -6,6 +6,7 @@ import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-nat
 import { ThemedText } from '@/components/themed-text';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorView } from '@/components/ui/error-view';
+import { groupedItemStyle } from '@/components/ui/grouped-section';
 import { MarketStatusPill } from '@/components/ui/market-status-pill';
 import { Screen } from '@/components/ui/screen';
 import { SkeletonList } from '@/components/ui/skeleton';
@@ -59,18 +60,16 @@ export default function WatchlistScreen() {
             onPress={() => router.push('/search')}
             accessibilityRole="button"
             accessibilityLabel="Add a symbol"
-            style={({ pressed }) => [
-              styles.addButton,
-              { backgroundColor: theme.accent, opacity: pressed ? 0.85 : 1 },
-            ]}>
-            <Ionicons name="add" size={22} color={theme.accentText} />
+            hitSlop={8}
+            style={({ pressed }) => [{ opacity: pressed ? 0.55 : 1 }, styles.addButton]}>
+            <Ionicons name="add" size={28} color={theme.accent} />
           </Pressable>
         </View>
 
         <Pressable
           onPress={() => router.push('/search')}
           accessibilityRole="search"
-          style={[styles.searchBar, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+          style={[styles.searchBar, { backgroundColor: theme.backgroundSelected }]}>
           <Ionicons name="search" size={16} color={theme.textMuted} />
           <ThemedText type="small" themeColor="textMuted">
             Search stocks and ETFs
@@ -113,17 +112,24 @@ export default function WatchlistScreen() {
               </ThemedText>
             ) : null
           }
-          renderItem={({ item }) => (
-            <WatchlistRow
-              symbol={item.symbol}
-              name={namesBySymbol.get(item.symbol)}
-              quote={quotes.quotesBySymbol.get(item.symbol) ?? null}
-              sparkline={series[item.symbol]}
-              isLoadingQuote={quotes.isLoading}
-              isStale={quotes.staleSymbols.includes(item.symbol)}
-              onPress={() => router.push(`/symbol/${item.symbol}`)}
-              onLongPress={() => void handleRemove(item.id, item.symbol)}
-            />
+          renderItem={({ item, index }) => (
+            <View
+              style={[
+                { backgroundColor: theme.surfaceElevated },
+                groupedItemStyle(index, items.length),
+              ]}>
+              <WatchlistRow
+                symbol={item.symbol}
+                name={namesBySymbol.get(item.symbol)}
+                quote={quotes.quotesBySymbol.get(item.symbol) ?? null}
+                sparkline={series[item.symbol]}
+                isLoadingQuote={quotes.isLoading}
+                isStale={quotes.staleSymbols.includes(item.symbol)}
+                showSeparator={index < items.length - 1}
+                onPress={() => router.push(`/symbol/${item.symbol}`)}
+                onLongPress={() => void handleRemove(item.id, item.symbol)}
+              />
+            </View>
           )}
         />
       )}
@@ -139,27 +145,27 @@ const styles = StyleSheet.create({
   },
   headerTop: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
   },
   headerTitles: {
-    gap: Spacing.one + 2,
+    flex: 1,
+    gap: Spacing.one,
   },
   addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: Radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'flex-end',
+    justifyContent: 'flex-start',
+    paddingTop: 4,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
-    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: Radius.md,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two + 2,
+    minHeight: 36,
+    paddingHorizontal: Spacing.three - 4,
   },
   listPadding: {
     paddingHorizontal: Spacing.three,
@@ -171,5 +177,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingTop: Spacing.three,
+    paddingHorizontal: Spacing.one,
   },
 });

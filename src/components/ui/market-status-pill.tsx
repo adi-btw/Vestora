@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getMarketStatus, MARKET_STATUS_LABELS } from '@/lib/market-hours';
 
@@ -20,7 +20,7 @@ export function MarketStatusPill() {
   const dotColor = isOpen ? theme.up : status === 'closed' ? theme.textMuted : theme.warning;
 
   return (
-    <View style={[styles.pill, { backgroundColor: theme.backgroundElement }]}>
+    <View style={styles.row}>
       <View style={[styles.dot, { backgroundColor: dotColor }]} />
       <ThemedText type="caption" themeColor="textSecondary">
         {MARKET_STATUS_LABELS[status]}
@@ -30,13 +30,10 @@ export function MarketStatusPill() {
 }
 
 const styles = StyleSheet.create({
-  pill: {
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.one + 2,
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.one,
-    borderRadius: Radius.pill,
     alignSelf: 'flex-start',
   },
   dot: {

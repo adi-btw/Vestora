@@ -45,7 +45,7 @@ export function Button({
     secondary: {
       background: theme.backgroundElement,
       text: theme.text,
-      border: theme.border,
+      border: 'transparent',
     },
     ghost: { background: 'transparent', text: theme.accent, border: 'transparent' },
     danger: { background: theme.downSoft, text: theme.down, border: theme.downSoft },
@@ -85,8 +85,7 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: Radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: Radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -98,7 +97,7 @@ const styles = StyleSheet.create({
   md: {
     paddingVertical: Spacing.three - 4,
     paddingHorizontal: Spacing.four,
-    minHeight: 48,
+    minHeight: 50,
   },
   content: {
     flexDirection: 'row',

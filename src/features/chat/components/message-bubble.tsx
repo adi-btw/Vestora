@@ -29,13 +29,8 @@ export function MessageBubble({ message }: { message: ChatMessage }) {
         style={[
           styles.bubble,
           isUser
-            ? { backgroundColor: theme.accent, borderBottomRightRadius: Radius.sm }
-            : {
-                backgroundColor: theme.surface,
-                borderColor: theme.border,
-                borderWidth: StyleSheet.hairlineWidth,
-                borderBottomLeftRadius: Radius.sm,
-              },
+            ? { backgroundColor: theme.accent }
+            : { backgroundColor: theme.backgroundElement },
         ]}>
         {!isUser && message.tool_calls?.length ? <ToolTrace calls={message.tool_calls} /> : null}
         <ThemedText type="small" color={isUser ? theme.accentText : theme.text}>
@@ -59,9 +54,9 @@ const styles = StyleSheet.create({
   },
   bubble: {
     maxWidth: '88%',
-    borderRadius: Radius.lg,
-    paddingHorizontal: Spacing.three - 4,
-    paddingVertical: Spacing.two,
+    borderRadius: Radius.xl,
+    paddingHorizontal: Spacing.three - 2,
+    paddingVertical: Spacing.two + 2,
   },
   toolRow: {
     paddingVertical: Spacing.one,

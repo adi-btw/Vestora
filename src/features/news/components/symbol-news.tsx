@@ -1,9 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Card } from '@/components/ui/card';
 import { ErrorView } from '@/components/ui/error-view';
-import { SectionHeader } from '@/components/ui/section-header';
+import { GroupedSection } from '@/components/ui/grouped-section';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Spacing } from '@/constants/theme';
 import { AiSummary } from '@/features/news/components/ai-summary';
@@ -15,9 +14,7 @@ export function SymbolNews({ symbol }: { symbol: string }) {
     useSymbolNews(symbol);
 
   return (
-    <Card>
-      <SectionHeader title="News" subtitle={`Latest coverage of ${symbol}`} />
-
+    <GroupedSection title="News" subtitle={`Latest coverage of ${symbol}`}>
       {isError ? (
         <ErrorView error={error} onRetry={refetch} compact />
       ) : isLoading ? (
@@ -27,35 +24,48 @@ export function SymbolNews({ symbol }: { symbol: string }) {
           <Skeleton height={44} />
         </View>
       ) : articles.length === 0 ? (
-        <ThemedText type="small" themeColor="textMuted">
-          No recent news for {symbol}.
-        </ThemedText>
+        <View style={styles.empty}>
+          <ThemedText type="small" themeColor="textMuted">
+            No recent news for {symbol}.
+          </ThemedText>
+        </View>
       ) : (
         <View>
-          {summary ? <AiSummary summary={summary} /> : null}
+          {summary ? (
+            <View style={styles.summary}>
+              <AiSummary summary={summary} />
+            </View>
+          ) : null}
 
           {!summary && aiEnabled && quotaExhausted ? (
-            <ThemedText type="caption" themeColor="textMuted">
+            <ThemedText type="caption" themeColor="textMuted" style={styles.quota}>
               The daily AI summary quota is used up - headlines only for now.
             </ThemedText>
           ) : null}
 
-          <View style={styles.list}>
-            {articles.map((article) => (
-              <NewsRow key={`${article.symbol}:${article.id}`} article={article} />
-            ))}
-          </View>
+          {articles.map((article) => (
+            <NewsRow key={`${article.symbol}:${article.id}`} article={article} />
+          ))}
         </View>
       )}
-    </Card>
+    </GroupedSection>
   );
 }
 
 const styles = StyleSheet.create({
   loading: {
     gap: Spacing.two,
+    padding: Spacing.three,
   },
-  list: {
+  empty: {
+    padding: Spacing.three,
+  },
+  summary: {
+    padding: Spacing.three,
+    paddingBottom: Spacing.two,
+  },
+  quota: {
+    paddingHorizontal: Spacing.three,
     paddingTop: Spacing.two,
   },
 });

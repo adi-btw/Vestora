@@ -5,7 +5,6 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
 import { Radius, Spacing } from '@/constants/theme';
 import { FactorBar } from '@/features/recommendations/components/factor-bar';
 import type { Recommendation } from '@/features/recommendations/schemas';
@@ -30,7 +29,7 @@ export function RecommendationCard({ recommendation, onDismiss }: Recommendation
   const { symbol, score, thesis, risks, confidence, signals } = recommendation;
 
   return (
-    <Card style={styles.card}>
+    <View style={[styles.card, { borderBottomColor: theme.border }]}>
       <View style={styles.header}>
         <Pressable
           onPress={() => router.push(`/symbol/${symbol}`)}
@@ -94,13 +93,15 @@ export function RecommendationCard({ recommendation, onDismiss }: Recommendation
           ))}
         </View>
       ) : null}
-    </Card>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
     gap: Spacing.two,
+    padding: Spacing.three,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   header: {
     flexDirection: 'row',

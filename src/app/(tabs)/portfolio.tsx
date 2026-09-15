@@ -1,14 +1,13 @@
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { useDirectionColor } from '@/components/market/price-change';
+import { ChangePill } from '@/components/market/change-pill';
 import { ThemedText } from '@/components/themed-text';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorView } from '@/components/ui/error-view';
+import { GroupedSection } from '@/components/ui/grouped-section';
 import { Screen } from '@/components/ui/screen';
-import { SectionHeader } from '@/components/ui/section-header';
 import { Skeleton, SkeletonList } from '@/components/ui/skeleton';
 import { Spacing } from '@/constants/theme';
 import { EquityCurve } from '@/features/portfolio/components/equity-curve';
@@ -20,7 +19,7 @@ import {
   useOrders,
   usePortfolioSummary,
 } from '@/features/portfolio/hooks';
-import { formatCurrency, formatSignedCurrency, formatSignedPercent } from '@/lib/format';
+import { formatCurrency, formatSignedCurrency } from '@/lib/format';
 
 export default function PortfolioScreen() {
   const router = useRouter();
@@ -29,19 +28,22 @@ export default function PortfolioScreen() {
   const curve = useEquityCurve();
   const cancelOrder = useCancelOrder();
 
-  const returnColor = useDirectionColor(summary?.totalReturn);
-
   return (
     <Screen scroll onRefresh={refetch} refreshing={isLoading} contentStyle={styles.content}>
       <View style={styles.header}>
-        <ThemedText type="title">Portfolio</ThemedText>
-        <Badge label="Simulated money" tone="warning" />
+        <View style={styles.headerTitles}>
+          <ThemedText type="title">Portfolio</ThemedText>
+          <ThemedText type="caption" themeColor="textMuted">
+            Simulated money
+          </ThemedText>
+        </View>
+        <Badge label="Paper" tone="warning" />
       </View>
 
       {isError ? (
         <ErrorView error={error} onRetry={refetch} />
       ) : (
-        <Card>
+        <GroupedSection padded>
           {isLoading || !summary ? (
             <View style={styles.summaryLoading}>
               <Skeleton width={200} height={38} />
@@ -53,10 +55,11 @@ export default function PortfolioScreen() {
                 Total equity
               </ThemedText>
               <ThemedText type="display">{formatCurrency(summary.equity)}</ThemedText>
-              <ThemedText type="small" color={returnColor}>
-                {formatSignedCurrency(summary.totalReturn)} (
-                {formatSignedPercent(summary.totalReturnPercent)}) all time
-              </ThemedText>
+              <ChangePill
+                change={summary.totalReturn}
+                changePercent={summary.totalReturnPercent}
+                showAbsolute
+              />
 
               <View style={styles.stats}>
                 <Stat label="Cash" value={formatCurrency(summary.cash)} />
@@ -66,11 +69,10 @@ export default function PortfolioScreen() {
               </View>
             </>
           )}
-        </Card>
+        </GroupedSection>
       )}
 
-      <Card>
-        <SectionHeader title="Equity curve" subtitle="One snapshot per day" />
+      <GroupedSection title="Equity curve" subtitle="One snapshot per day" padded>
         {curve.isLoading ? (
           <Skeleton height={180} />
         ) : (
@@ -79,24 +81,25 @@ export default function PortfolioScreen() {
             startingCash={summary?.startingCash ?? 100000}
           />
         )}
-      </Card>
+      </GroupedSection>
 
-      <Card>
-        <SectionHeader
-          title="Holdings"
-          subtitle={summary?.positions.length ? `${summary.positions.length} open` : undefined}
-        />
-
+      <GroupedSection
+        title="Holdings"
+        subtitle={summary?.positions.length ? `${summary.positions.length} open` : undefined}>
         {isLoading ? (
-          <SkeletonList count={3} />
+          <View style={styles.padded}>
+            <SkeletonList count={3} />
+          </View>
         ) : (summary?.positions ?? []).length === 0 ? (
-          <EmptyState
-            icon="briefcase-outline"
-            title="No positions yet"
-            description="Practice with simulated cash - pick a stock and place your first order."
-            actionLabel="Find a symbol"
-            onAction={() => router.push('/search')}
-          />
+          <View style={styles.padded}>
+            <EmptyState
+              icon="briefcase-outline"
+              title="No positions yet"
+              description="Practice with simulated cash - pick a stock and place your first order."
+              actionLabel="Find a symbol"
+              onAction={() => router.push('/search')}
+            />
+          </View>
         ) : (
           <View>
             {(summary?.positions ?? []).map((position) => (
@@ -104,19 +107,21 @@ export default function PortfolioScreen() {
             ))}
           </View>
         )}
-      </Card>
+      </GroupedSection>
 
-      <Card>
-        <SectionHeader title="Order history" />
-
+      <GroupedSection title="Order history">
         {orders.isError ? (
           <ErrorView error={orders.error} onRetry={orders.refetch} compact />
         ) : orders.isLoading ? (
-          <SkeletonList count={3} />
+          <View style={styles.padded}>
+            <SkeletonList count={3} />
+          </View>
         ) : (orders.data ?? []).length === 0 ? (
-          <ThemedText type="small" themeColor="textMuted">
-            Orders you place will show up here.
-          </ThemedText>
+          <View style={styles.padded}>
+            <ThemedText type="small" themeColor="textMuted">
+              Orders you place will show up here.
+            </ThemedText>
+          </View>
         ) : (
           <View>
             {(orders.data ?? []).map((order) => (
@@ -129,7 +134,7 @@ export default function PortfolioScreen() {
             ))}
           </View>
         )}
-      </Card>
+      </GroupedSection>
 
       <ThemedText type="caption" themeColor="textMuted">
         Every order here is simulated against cached market prices. No brokerage is connected and no
@@ -156,10 +161,17 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: Spacing.two,
     paddingTop: Spacing.two,
+  },
+  headerTitles: {
+    flex: 1,
+    gap: Spacing.one,
+  },
+  padded: {
+    padding: Spacing.three,
   },
   summaryLoading: {
     gap: Spacing.two,

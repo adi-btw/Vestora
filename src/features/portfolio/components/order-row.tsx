@@ -72,7 +72,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: Spacing.three,
-    paddingVertical: Spacing.three - 4,
+    paddingVertical: Spacing.three - 2,
+    paddingHorizontal: Spacing.three,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   main: {
