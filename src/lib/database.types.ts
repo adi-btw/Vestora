@@ -269,6 +269,10 @@ export interface Database {
         Args: Record<PropertyKey, never>;
         Returns: string;
       };
+      ensure_watchlist: {
+        Args: Record<PropertyKey, never>;
+        Returns: string;
+      };
       /** Applies cash, position and order changes in one transaction. */
       place_paper_order: {
         Args: {

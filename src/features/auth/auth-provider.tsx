@@ -36,8 +36,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     supabase.auth
       .getSession()
-      .then(({ data }) => {
-        if (active) setSession(data.session);
+      .then(async ({ data }) => {
+        if (!active) return;
+        if (!data.session) {
+          setSession(null);
+          return;
+        }
+
+        // getSession() only reads local storage. After a database restore the
+        // cached user id can point at a deleted account, which makes watchlist
+        // inserts 409 and the UI look "not ready".
+        const { data: userData, error } = await supabase.auth.getUser();
+        if (!active) return;
+        if (error && error.name !== 'AuthRetryableFetchError') {
+          await supabase.auth.signOut();
+          setSession(null);
+          return;
+        }
+        setSession(userData.user ? { ...data.session, user: userData.user } : data.session);
       })
       .finally(() => {
         if (active) setIsLoading(false);

@@ -24,7 +24,7 @@ export default function SearchScreen() {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebouncedValue(query, 350);
 
-  const { symbols } = useWatchlistItems();
+  const { symbols, isLoading: isWatchlistLoading } = useWatchlistItems();
   const addSymbol = useAddSymbol();
   const search = useSymbolSearch(debouncedQuery);
 
@@ -37,6 +37,7 @@ export default function SearchScreen() {
       router.push(`/symbol/${symbol}`);
       return;
     }
+    if (isWatchlistLoading || addSymbol.isPending) return;
     try {
       await addSymbol.mutateAsync(symbol);
     } catch {

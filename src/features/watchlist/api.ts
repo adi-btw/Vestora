@@ -2,14 +2,14 @@ import type { WatchlistItemRow, WatchlistRow } from '@/lib/database.types';
 import { supabase } from '@/lib/supabase';
 
 /**
- * Reads the user's default list, creating one if the sign-up trigger never ran
- * (for example on a project seeded before the trigger existed).
+ * Reads the signed-in user's default list, creating one if the sign-up trigger
+ * never ran. Scoped by RLS (`auth.uid()`), not a client-supplied user id, so a
+ * stale session cannot insert under a deleted account and 409.
  */
-export async function fetchDefaultWatchlist(userId: string): Promise<WatchlistRow> {
+export async function fetchDefaultWatchlist(): Promise<WatchlistRow> {
   const { data, error } = await supabase
     .from('watchlists')
     .select('*')
-    .eq('user_id', userId)
     .order('is_default', { ascending: false })
     .order('created_at', { ascending: true })
     .limit(1)
@@ -18,13 +18,18 @@ export async function fetchDefaultWatchlist(userId: string): Promise<WatchlistRo
   if (error) throw error;
   if (data) return data;
 
-  const { data: created, error: createError } = await supabase
+  const { error: createError } = await supabase.rpc('ensure_watchlist');
+  if (createError) throw createError;
+
+  const { data: created, error: reReadError } = await supabase
     .from('watchlists')
-    .insert({ user_id: userId, name: 'My watchlist', is_default: true })
-    .select()
+    .select('*')
+    .order('is_default', { ascending: false })
+    .order('created_at', { ascending: true })
+    .limit(1)
     .single();
 
-  if (createError) throw createError;
+  if (reReadError) throw reReadError;
   return created;
 }
 

@@ -11,14 +11,15 @@ export function useDefaultWatchlist() {
 
   return useQuery({
     queryKey: queryKeys.watchlist.default(),
-    queryFn: () => api.fetchDefaultWatchlist(user!.id),
+    queryFn: () => api.fetchDefaultWatchlist(),
     enabled: Boolean(user),
     staleTime: 60 * 60_000,
   });
 }
 
 export function useWatchlistItems() {
-  const { data: watchlist } = useDefaultWatchlist();
+  const watchlistQuery = useDefaultWatchlist();
+  const watchlist = watchlistQuery.data;
 
   const query = useQuery({
     queryKey: queryKeys.watchlist.items(watchlist?.id ?? 'none'),
@@ -29,7 +30,20 @@ export function useWatchlistItems() {
 
   const symbols = useMemo(() => (query.data ?? []).map((item) => item.symbol), [query.data]);
 
-  return { ...query, items: query.data ?? [], symbols, watchlistId: watchlist?.id ?? null };
+  return {
+    ...query,
+    items: query.data ?? [],
+    symbols,
+    watchlistId: watchlist?.id ?? null,
+    isLoading: watchlistQuery.isLoading || (Boolean(watchlist) && query.isLoading),
+    isPending: watchlistQuery.isPending || query.isPending,
+    isError: watchlistQuery.isError || query.isError,
+    error: watchlistQuery.error ?? query.error,
+    refetch: async () => {
+      await watchlistQuery.refetch();
+      return query.refetch();
+    },
+  };
 }
 
 export function useAddSymbol() {
@@ -39,19 +53,23 @@ export function useAddSymbol() {
   const { items } = useWatchlistItems();
 
   return useMutation({
-    mutationFn: (symbol: string) => {
-      if (!watchlist || !user) throw new Error('Watchlist is not ready yet.');
+    mutationFn: async (symbol: string) => {
+      if (!user) throw new Error('Sign in to add symbols.');
+      const list =
+        watchlist ??
+        (await queryClient.fetchQuery({
+          queryKey: queryKeys.watchlist.default(),
+          queryFn: () => api.fetchDefaultWatchlist(),
+        }));
       return api.addWatchlistItem({
-        watchlistId: watchlist.id,
+        watchlistId: list.id,
         userId: user.id,
         symbol,
         sortOrder: items.length,
       });
     },
-    onSuccess: () => {
-      if (watchlist) {
-        void queryClient.invalidateQueries({ queryKey: queryKeys.watchlist.items(watchlist.id) });
-      }
+    onSuccess: (item) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.watchlist.items(item.watchlist_id) });
     },
   });
 }
